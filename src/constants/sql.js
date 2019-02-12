@@ -27,13 +27,16 @@ module.exports = {
             "name VARCHAR(30) NOT NULL" +
         ");",
 
-    INSERT_TEAM_DATA: "INSERT INTO team (abbreviation, name) VALUES ($1, $2) RETURNING *;",
-
     GAME_EXISTS_QUERY: "SELECT EXISTS " +
         "(SELECT * FROM game WHERE id = $1)",
 
-    TEAM_ID_QUERY: "SELECT id FROM team WHERE abbreviation = $1",
+    INSERT_SCORE_DATA: "INSERT INTO score (total, quarter_one, quarter_two, quarter_three, " +
+        "quarter_four, quarter_overtime) VALUES ($1, $2, $3, $4, $5, $6) RETURNING *;",
+
+    INSERT_TEAM_DATA: "INSERT INTO team (abbreviation, name) VALUES ($1, $2) RETURNING *;",
 
     TABLE_EXISTS_QUERY: "SELECT EXISTS " +
-        "(SELECT * FROM information_schema.tables WHERE table_name = $1)"
+        "(SELECT * FROM information_schema.tables WHERE table_name = $1)",
+
+    TEAM_ID_QUERY: "SELECT id FROM team WHERE abbreviation = $1"
 };

@@ -1,4 +1,4 @@
-const { CREATE_GAME_TABLE, CREATE_SCORE_TABLE, CREATE_TEAM_TABLE, GAME_EXISTS_QUERY,
+const { CREATE_GAME_TABLE, CREATE_SCORE_TABLE, CREATE_TEAM_TABLE, GAME_EXISTS_QUERY, INSERT_SCORE_DATA,
     INSERT_TEAM_DATA, TABLE_EXISTS_QUERY, TEAM_ID_QUERY } = require("./constants/sql");
 const { Client } = require("pg");
 const rp = require('request-promise');
@@ -36,30 +36,42 @@ async function initializeTables() {
 }
 
 async function loadScheduleData(data) {
-    console.log("Loading scheduled data ...");
+    console.log("Loading schedule data ...");
 
     console.log(data[0]);
 
-    // see if game exists
     const gameId = data[0].gameId;
-    const res = await client.query(GAME_EXISTS_QUERY, [gameId]);
-    console.log(`Game id ${gameId} exists: ` + JSON.stringify(res.rows[0]));
-    if (!res.rows[0].exists) {
+    const gameIdResponse = await client.query(GAME_EXISTS_QUERY, [gameId]);
+    console.log(`Game id ${gameId} exists: ` + JSON.stringify(gameIdResponse.rows[0]));
+    if (!gameIdResponse.rows[0].exists) {
         console.log("We're in!");
 
+        const game = data[0];
+
+        // score
+        const visitorScoreId = await loadScore(game.score.visitorTeamScore);
+        const homeScoreId = await loadScore(game.score.homeTeamScore);
+
         // teams
-        const visitorTeamId = await loadTeam(data[0].visitorTeam.abbr, data[0].visitorTeam.fullName);
-        const homeTeamId = await loadTeam(data[0].homeTeam.abbr, data[0].homeTeam.fullName);
+        const visitorTeamId = await loadTeam(game.visitorTeam);
+        const homeTeamId = await loadTeam(game.homeTeam);
     }
 
     console.log("Done.");
 }
 
-async function loadTeam(abbreviation, fullName) {
+async function loadScore(score) {
+    const newScoreResponse = await client.query(INSERT_SCORE_DATA, [score.pointTotal, score.pointQ1, score.pointQ2,
+        score.pointQ3, score.pointQ4, score.pointOT]);
+    console.log(newScoreResponse.rows[0].id);
+    return newScoreResponse.rows[0].id;
+}
+
+async function loadTeam(team) {
     let teamId;
-    const teamResponse = await client.query(TEAM_ID_QUERY, [abbreviation]);
+    const teamResponse = await client.query(TEAM_ID_QUERY, [team.abbr]);
     if (teamResponse.rowCount === 0) {
-        const newTeamResponse = await client.query(INSERT_TEAM_DATA, [abbreviation, fullName]);
+        const newTeamResponse = await client.query(INSERT_TEAM_DATA, [team.abbr, team.fullName]);
         teamId = newTeamResponse.rows[0].id;
     } else {
         teamId = teamResponse.rows[0].id;
