@@ -1,6 +1,9 @@
 module.exports = {
-    CREATE_USERS_TABLE: "CREATE TABLE users " +
-        "(ID SERIAL PRIMARY KEY, name VARCHAR(30));",
+    CREATE_TEAM_TABLE: "CREATE TABLE team (" +
+            "id SMALLINT PRIMARY KEY, " +
+            "abbreviation CHAR(3) NOT NULL, " +
+            "name VARCHAR(30) NOT NULL " +
+        ");",
     TABLE_EXISTS_QUERY: "SELECT EXISTS " +
-        "(SELECT * FROM INFORMATION_SCHEMA.TABLES WHERE TABLE_NAME = $1)"
+        "(SELECT * FROM information_schema.tables WHERE table_name = $1)"
 };
