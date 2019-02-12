@@ -7,12 +7,12 @@ console.log("Schedule loader running.");
 
 const client = new Client();
 
-openDatabaseConnection()
-    .then(initializeTables).catch(e => console.error(e.stack))
-    .then(getScheduleData).catch(e => console.error(e.stack))
-    .then(loadScheduleData).catch(e => console.error(e.stack))
-    .then(closeDatabaseConnection).catch(e => console.error(e.stack))
-    .finally(() => {
+openDatabaseConnection().catch(e => console.error(e.stack))
+    .then(initializeTables)
+    .then(getScheduleData)
+    .then(loadScheduleData)
+    .then(closeDatabaseConnection)
+    .then(() => {
         console.log("Schedule loader completed!");
         process.exit();
     });
@@ -38,41 +38,38 @@ async function initializeTables() {
 async function loadScheduleData(data) {
     console.log("Loading schedule data ...");
 
-    console.log(data[0]);
+    for (let i = 0; i < data.length; i++) {
+        await loadScheduledGame(data[i]);
+    }
 
-    const gameId = data[0].gameId;
-    const gameIdResponse = await client.query(GAME_EXISTS_QUERY, [gameId]);
-    console.log(`Game id ${gameId} exists: ` + JSON.stringify(gameIdResponse.rows[0]));
+    console.log("Done loading schedule data.");
+}
+
+async function loadScheduledGame(game) {
+    const gameIdResponse = await client.query(GAME_EXISTS_QUERY, [game.gameId]);
     if (!gameIdResponse.rows[0].exists) {
-        console.log("We're in!");
-
-        const game = data[0];
-
-        // teams
         const homeTeamId = await loadTeam(game.homeTeam);
         const visitorTeamId = await loadTeam(game.visitorTeam);
 
-        // score
         const homeScoreId = await loadScore(game.score.homeTeamScore);
         const visitorScoreId = await loadScore(game.score.visitorTeamScore);
 
         const gameId = await loadGame(game, homeTeamId, visitorTeamId, homeScoreId, visitorScoreId);
+        console.log(`Game id ${gameId} is loaded.`);
+    } else {
+        console.log(`Game id ${game.gameId} is already loaded.`);
     }
-
-    console.log("Done.");
 }
 
 async function loadGame(game, homeTeamId, visitorTeamId, homeScoreId, visitorScoreId) {
     const newGameResponse = await client.query(INSERT_GAME_DATA, [game.gameId, game.gameDate, game.gameType,
         game.seasonType, game.week, homeTeamId, visitorTeamId, homeScoreId, visitorScoreId]);
-    console.log(newGameResponse.rows[0].id);
     return newGameResponse.rows[0].id;
 }
 
 async function loadScore(score) {
     const newScoreResponse = await client.query(INSERT_SCORE_DATA, [score.pointTotal, score.pointQ1, score.pointQ2,
         score.pointQ3, score.pointQ4, score.pointOT]);
-    console.log(newScoreResponse.rows[0].id);
     return newScoreResponse.rows[0].id;
 }
 
@@ -104,10 +101,8 @@ async function getScheduleData() {
 }
 
 async function createTable(table, sql) {
-    const res = await client.query(TABLE_EXISTS_QUERY, [table]);
-    console.log(`${table} exists: ` + JSON.stringify(res.rows[0]));
-    if (!res.rows[0].exists) {
-        const res = await client.query(sql);
-        console.log("response: " + JSON.stringify(res));
+    const tableExistsResponse = await client.query(TABLE_EXISTS_QUERY, [table]);
+    if (!tableExistsResponse.rows[0].exists) {
+        await client.query(sql);
     }
 }
