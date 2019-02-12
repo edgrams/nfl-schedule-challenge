@@ -1,14 +1,13 @@
-const createTable = "CREATE TABLE users (ID SERIAL PRIMARY KEY, name VARCHAR(30));";
-const tableExistsQuery = "SELECT EXISTS (SELECT * FROM INFORMATION_SCHEMA.TABLES WHERE TABLE_NAME = 'users')";
-const { Client } = require('pg');
+const { CREATE_USERS_TABLE, TABLE_EXISTS_QUERY } = require("./sql");
+const { Client } = require("pg");
 
 const initialize = async () => {
     const client = new Client();
     await client.connect();
-    const res = await client.query(tableExistsQuery);
+    const res = await client.query(TABLE_EXISTS_QUERY, ['users']);
     console.log("response: " + JSON.stringify(res.rows[0]));
     if (!res.rows[0].exists) {
-        const res = await client.query(createTable);
+        const res = await client.query(CREATE_USERS_TABLE);
         console.log("response: " + JSON.stringify(res.rows[0]));
     }
     await client.end();
