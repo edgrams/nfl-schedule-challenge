@@ -1,13 +1,17 @@
 const { CREATE_GAME_TABLE, CREATE_SCORE_TABLE, CREATE_TEAM_TABLE,
     TABLE_EXISTS_QUERY } = require("./constants/sql");
 const { Client } = require("pg");
+const rp = require('request-promise');
 
-initialize().then(() => {
-    console.log("Schedule loader completed!");
-    process.exit();
-}).catch(
-    e => console.error(e.stack)
-);
+getScheduleData();
+
+initialize()
+    .then(getScheduleData)
+    .then(loadScheduleData)
+    .then(() => {
+        console.log("Schedule loader completed!");
+        process.exit();
+    });
 
 async function initialize() {
     console.log("Schedule loader running.");
@@ -27,6 +31,26 @@ async function initialize() {
 
     // close connection
     await client.end();
+}
+
+async function loadScheduleData(data) {
+    console.log("Loading scheduled data ...");
+
+    console.log(data);
+}
+
+async function getScheduleData() {
+    const seasonType = process.env.SEASON_TYPE;
+    const seasonYear = process.env.SEASON_YEAR;
+
+    const scheduleUrl = `http://api.ngs.nfl.com/league/schedule?season=${seasonYear}&seasonType=${seasonType}`;
+
+    const options = {
+        uri: scheduleUrl,
+        json: true
+    };
+
+    return rp(options);
 }
 
 async function createTable(client, table, sql) {
