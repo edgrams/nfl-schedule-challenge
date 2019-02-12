@@ -1,42 +1,58 @@
-const { CREATE_GAME_TABLE, CREATE_SCORE_TABLE, CREATE_TEAM_TABLE,
-    TABLE_EXISTS_QUERY } = require("./constants/sql");
+const { CREATE_GAME_TABLE, CREATE_SCORE_TABLE, CREATE_TEAM_TABLE, GAME_EXISTS_QUERY,
+    INSERT_TEAM_DATA, TABLE_EXISTS_QUERY } = require("./constants/sql");
 const { Client } = require("pg");
 const rp = require('request-promise');
 
-getScheduleData();
+console.log("Schedule loader running.");
 
-initialize()
-    .then(getScheduleData)
-    .then(loadScheduleData)
-    .then(() => {
+const client = new Client();
+
+openDatabaseConnection()
+    .then(initializeTables).catch(e => console.error(e.stack))
+    .then(getScheduleData).catch(e => console.error(e.stack))
+    .then(loadScheduleData).catch(e => console.error(e.stack))
+    .then(closeDatabaseConnection).catch(e => console.error(e.stack))
+    .finally(() => {
         console.log("Schedule loader completed!");
         process.exit();
     });
 
-async function initialize() {
-    console.log("Schedule loader running.");
+async function openDatabaseConnection() {
+    client.connect();
+}
 
-    // initialize client connection
-    const client = new Client();
-    await client.connect();
+async function closeDatabaseConnection() {
+    client.end();
+}
 
-    // create tables
+async function initializeTables() {
     console.log("Initializing tables...");
 
-    await createTable(client, 'team', CREATE_TEAM_TABLE);
-    await createTable(client, 'score', CREATE_SCORE_TABLE);
-    await createTable(client, 'game', CREATE_GAME_TABLE);
+    await createTable('team', CREATE_TEAM_TABLE);
+    await createTable('score', CREATE_SCORE_TABLE);
+    await createTable('game', CREATE_GAME_TABLE);
 
     console.log("Tables initialized.");
-
-    // close connection
-    await client.end();
 }
 
 async function loadScheduleData(data) {
     console.log("Loading scheduled data ...");
 
-    console.log(data);
+    console.log(data[0]);
+
+    // see if game exists
+    const gameId = data[0].gameId;
+    const res = await client.query(GAME_EXISTS_QUERY, [gameId]);
+    console.log(`Game id ${gameId} exists: ` + JSON.stringify(res.rows[0]));
+    if (!res.rows[0].exists) {
+        console.log("We're in!");
+
+        // teams
+        await client.query(INSERT_TEAM_DATA, [data[0].visitorTeam.abbr, data[0].visitorTeam.fullName]);
+        await client.query(INSERT_TEAM_DATA, [data[0].homeTeam.abbr, data[0].homeTeam.fullName]);
+    }
+
+    console.log("Done.");
 }
 
 async function getScheduleData() {
@@ -53,7 +69,7 @@ async function getScheduleData() {
     return rp(options);
 }
 
-async function createTable(client, table, sql) {
+async function createTable(table, sql) {
     const res = await client.query(TABLE_EXISTS_QUERY, [table]);
     console.log(`${table} exists: ` + JSON.stringify(res.rows[0]));
     if (!res.rows[0].exists) {

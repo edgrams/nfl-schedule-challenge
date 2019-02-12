@@ -1,6 +1,6 @@
 module.exports = {
     CREATE_GAME_TABLE: "CREATE TABLE game (" +
-            "id SMALLINT PRIMARY KEY, " +
+            "id INTEGER PRIMARY KEY, " +
             "date DATE NOT NULL, " +
             "type CHAR(4) NOT NULL, " +
             "season_type CHAR(4) NOT NULL, " +
@@ -26,6 +26,12 @@ module.exports = {
             "abbreviation CHAR(3) NOT NULL, " +
             "name VARCHAR(30) NOT NULL" +
         ");",
+
+    INSERT_TEAM_DATA: "INSERT INTO team (abbreviation, name) SELECT $1, $2 " +
+        "WHERE NOT EXISTS (SELECT * FROM team WHERE abbreviation = $1)",
+
+    GAME_EXISTS_QUERY: "SELECT EXISTS " +
+        "(SELECT * FROM game WHERE id = $1)",
 
     TABLE_EXISTS_QUERY: "SELECT EXISTS " +
         "(SELECT * FROM information_schema.tables WHERE table_name = $1)"
