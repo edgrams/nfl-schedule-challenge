@@ -6,9 +6,9 @@ module.exports = {
             "season_type CHAR(4) NOT NULL, " +
             "week SMALLINT NOT NULL, " +
             "home_team_id INTEGER NOT NULL REFERENCES team, " +
-            "away_team_id INTEGER NOT NULL REFERENCES team, " +
+            "visitor_team_id INTEGER NOT NULL REFERENCES team, " +
             "home_score_id INTEGER NOT NULL REFERENCES score, " +
-            "away_score_id INTEGER NOT NULL REFERENCES score" +
+            "visitor_score_id INTEGER NOT NULL REFERENCES score" +
         ");",
 
     CREATE_SCORE_TABLE: "CREATE TABLE score (" +
@@ -29,6 +29,9 @@ module.exports = {
 
     GAME_EXISTS_QUERY: "SELECT EXISTS " +
         "(SELECT * FROM game WHERE id = $1)",
+
+    INSERT_GAME_DATA: "INSERT INTO game (id, date, type, season_type, week, home_team_id, visitor_team_id, " +
+        "home_score_id, visitor_score_id) VALUES ($1, $2, $3, $4, $5, $6, $7, $8, $9) RETURNING *;",
 
     INSERT_SCORE_DATA: "INSERT INTO score (total, quarter_one, quarter_two, quarter_three, " +
         "quarter_four, quarter_overtime) VALUES ($1, $2, $3, $4, $5, $6) RETURNING *;",

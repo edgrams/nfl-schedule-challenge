@@ -1,5 +1,5 @@
-const { CREATE_GAME_TABLE, CREATE_SCORE_TABLE, CREATE_TEAM_TABLE, GAME_EXISTS_QUERY, INSERT_SCORE_DATA,
-    INSERT_TEAM_DATA, TABLE_EXISTS_QUERY, TEAM_ID_QUERY } = require("./constants/sql");
+const { CREATE_GAME_TABLE, CREATE_SCORE_TABLE, CREATE_TEAM_TABLE, GAME_EXISTS_QUERY, INSERT_GAME_DATA,
+    INSERT_SCORE_DATA, INSERT_TEAM_DATA, TABLE_EXISTS_QUERY, TEAM_ID_QUERY } = require("./constants/sql");
 const { Client } = require("pg");
 const rp = require('request-promise');
 
@@ -48,16 +48,25 @@ async function loadScheduleData(data) {
 
         const game = data[0];
 
-        // score
-        const visitorScoreId = await loadScore(game.score.visitorTeamScore);
-        const homeScoreId = await loadScore(game.score.homeTeamScore);
-
         // teams
-        const visitorTeamId = await loadTeam(game.visitorTeam);
         const homeTeamId = await loadTeam(game.homeTeam);
+        const visitorTeamId = await loadTeam(game.visitorTeam);
+
+        // score
+        const homeScoreId = await loadScore(game.score.homeTeamScore);
+        const visitorScoreId = await loadScore(game.score.visitorTeamScore);
+
+        const gameId = await loadGame(game, homeTeamId, visitorTeamId, homeScoreId, visitorScoreId);
     }
 
     console.log("Done.");
+}
+
+async function loadGame(game, homeTeamId, visitorTeamId, homeScoreId, visitorScoreId) {
+    const newGameResponse = await client.query(INSERT_GAME_DATA, [game.gameId, game.gameDate, game.gameType,
+        game.seasonType, game.week, homeTeamId, visitorTeamId, homeScoreId, visitorScoreId]);
+    console.log(newGameResponse.rows[0].id);
+    return newGameResponse.rows[0].id;
 }
 
 async function loadScore(score) {
