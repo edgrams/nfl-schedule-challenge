@@ -1,4 +1,4 @@
-const { CREATE_USERS_TABLE, TABLE_EXISTS_QUERY } = require("./sql");
+const { CREATE_USERS_TABLE, TABLE_EXISTS_QUERY } = require("./constants/sql");
 const { Client } = require("pg");
 
 const initialize = async () => {
@@ -14,7 +14,7 @@ const initialize = async () => {
 };
 
 initialize().then(() => {
-    console.log("Load completed!");
+    console.log("Schedule load completed!");
     process.exit();
 }).catch(
     e => console.error(e.stack)
