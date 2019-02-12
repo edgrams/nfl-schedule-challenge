@@ -1,5 +1,5 @@
 const { CREATE_GAME_TABLE, CREATE_SCORE_TABLE, CREATE_TEAM_TABLE, GAME_EXISTS_QUERY,
-    INSERT_TEAM_DATA, TABLE_EXISTS_QUERY } = require("./constants/sql");
+    INSERT_TEAM_DATA, TABLE_EXISTS_QUERY, TEAM_ID_QUERY } = require("./constants/sql");
 const { Client } = require("pg");
 const rp = require('request-promise');
 
@@ -48,11 +48,24 @@ async function loadScheduleData(data) {
         console.log("We're in!");
 
         // teams
-        await client.query(INSERT_TEAM_DATA, [data[0].visitorTeam.abbr, data[0].visitorTeam.fullName]);
-        await client.query(INSERT_TEAM_DATA, [data[0].homeTeam.abbr, data[0].homeTeam.fullName]);
+        const visitorTeamId = await loadTeam(data[0].visitorTeam.abbr, data[0].visitorTeam.fullName);
+        const homeTeamId = await loadTeam(data[0].homeTeam.abbr, data[0].homeTeam.fullName);
     }
 
     console.log("Done.");
+}
+
+async function loadTeam(abbreviation, fullName) {
+    let teamId;
+    const teamResponse = await client.query(TEAM_ID_QUERY, [abbreviation]);
+    if (teamResponse.rowCount === 0) {
+        const newTeamResponse = await client.query(INSERT_TEAM_DATA, [abbreviation, fullName]);
+        teamId = newTeamResponse.rows[0].id;
+    } else {
+        teamId = teamResponse.rows[0].id;
+    }
+
+    return teamId;
 }
 
 async function getScheduleData() {

@@ -27,11 +27,12 @@ module.exports = {
             "name VARCHAR(30) NOT NULL" +
         ");",
 
-    INSERT_TEAM_DATA: "INSERT INTO team (abbreviation, name) SELECT $1, $2 " +
-        "WHERE NOT EXISTS (SELECT * FROM team WHERE abbreviation = $1)",
+    INSERT_TEAM_DATA: "INSERT INTO team (abbreviation, name) VALUES ($1, $2) RETURNING *;",
 
     GAME_EXISTS_QUERY: "SELECT EXISTS " +
         "(SELECT * FROM game WHERE id = $1)",
+
+    TEAM_ID_QUERY: "SELECT id FROM team WHERE abbreviation = $1",
 
     TABLE_EXISTS_QUERY: "SELECT EXISTS " +
         "(SELECT * FROM information_schema.tables WHERE table_name = $1)"
