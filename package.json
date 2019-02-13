@@ -6,6 +6,7 @@
   "author": "Ed Grams",
   "private": false,
   "dependencies": {
+    "express": "^4.16.4",
     "pg": "^7.8.0",
     "request": "^2.88.0",
     "request-promise": "^4.2.2"

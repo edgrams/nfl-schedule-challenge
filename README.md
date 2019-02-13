@@ -6,4 +6,4 @@ Prerequisites:
 
 How to run:
 
-```./scheduleLoader <postgres user> <postgres host> <postgres password> <postgres database> <postgres port> <season type> <season year>```
+```./schedule-loader <postgres user> <postgres host> <postgres password> <postgres database> <postgres port> <season type> <season year>```
