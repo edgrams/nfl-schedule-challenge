@@ -1,4 +1,4 @@
-const { CREATE_GAME_TABLE, CREATE_SCORE_TABLE, CREATE_TEAM_TABLE, GAME_EXISTS_QUERY, INSERT_GAME_DATA,
+const { CREATE_BYE_TABLE, CREATE_GAME_TABLE, CREATE_SCORE_TABLE, CREATE_TEAM_TABLE, GAME_EXISTS_QUERY, INSERT_GAME_DATA,
     INSERT_SCORE_DATA, INSERT_TEAM_DATA, TABLE_EXISTS_QUERY, TEAM_ID_QUERY } = require("./sql/schedule-loader");
 const { Client } = require("pg");
 const rp = require('request-promise');
@@ -35,6 +35,7 @@ async function initializeTables() {
     console.log("Initializing tables...");
 
     await createTable('team', CREATE_TEAM_TABLE);
+    await createTable('bye', CREATE_BYE_TABLE);
     await createTable('score', CREATE_SCORE_TABLE);
     await createTable('game', CREATE_GAME_TABLE);
 

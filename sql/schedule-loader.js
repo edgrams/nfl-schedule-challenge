@@ -1,4 +1,11 @@
 module.exports = {
+    CREATE_BYE_TABLE: "CREATE TABLE bye (" +
+            "team_id INTEGER NOT NULL REFERENCES team, " +
+            "season_year SMALLINT NOT NULL, " +
+            "week SMALLINT NOT NULL, " +
+            "PRIMARY KEY(team_id, season_year)" +
+        ");",
+
     CREATE_GAME_TABLE: "CREATE TABLE game (" +
             "id INTEGER PRIMARY KEY, " +
             "date DATE NOT NULL, " +
