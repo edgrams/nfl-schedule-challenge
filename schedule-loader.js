@@ -69,7 +69,7 @@ async function loadScheduledGame(game) {
         const visitorTeamId = await loadTeam(game.visitorTeam);
 
         const gameId = await loadGame(game, homeTeamId, visitorTeamId);
-
+        
         await loadScore(gameId, homeTeamId, game.score.homeTeamScore);
         await loadScore(gameId, visitorTeamId, game.score.visitorTeamScore);
 
