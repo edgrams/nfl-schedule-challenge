@@ -23,7 +23,7 @@ router.get("/byes/:season/team/:team", (req, res, next) => {
 
     pool.query(QUERY_BYE_BY_TEAM_BY_YEAR, [team, season])
         .then((result) => {
-            res.send(result.rows[0]);
+            res.send(result.rows);
         })
         .catch((err) => {
             return next(err);
