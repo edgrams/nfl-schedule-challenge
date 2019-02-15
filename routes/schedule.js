@@ -12,7 +12,6 @@ router.get("/byes", (req, res, next) => {
     if (team) {
         pool.query(QUERY_BYE_BY_TEAM_BY_YEAR, [team, season])
             .then((result) => {
-                console.log(result.rows[0]);
                 res.send(result.rows[0]);
             })
             .catch((err) => {
@@ -21,7 +20,6 @@ router.get("/byes", (req, res, next) => {
     } else {
         pool.query(QUERY_BYE_BY_YEAR, [season])
             .then((result) => {
-                console.log(result.rows);
                 res.send(result.rows);
             })
             .catch((err) => {
