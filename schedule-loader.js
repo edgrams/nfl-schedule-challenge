@@ -6,6 +6,7 @@ const rp = require('request-promise');
 console.log("Schedule loader running.");
 
 const client = new Client();
+const leagueUnplayedWeeks = new Map();
 
 openDatabaseConnection().catch(e => console.error(e.stack))
     .then(initializeTables)
@@ -16,6 +17,11 @@ openDatabaseConnection().catch(e => console.error(e.stack))
         console.log("Schedule loader completed!");
         process.exit();
     });
+
+function getGameSet() {
+    const weeks = Array(17).fill().map((_, i) => i + 1);
+    return new Set(weeks);
+}
 
 async function openDatabaseConnection() {
     client.connect();
@@ -42,6 +48,10 @@ async function loadScheduleData(data) {
         await loadScheduledGame(data[i]);
     }
 
+    leagueUnplayedWeeks.forEach((value, key) => {
+        console.log(`team[${key}] = ${value.values().next().value}`)
+    });
+
     console.log("Done loading schedule data.");
 }
 
@@ -56,9 +66,24 @@ async function loadScheduledGame(game) {
 
         const gameId = await loadGame(game, homeTeamId, visitorTeamId, homeScoreId, visitorScoreId);
         console.log(`Game id ${gameId} is loaded.`);
+
+        registerWeekForTeam(homeTeamId, game.week);
+        registerWeekForTeam(visitorTeamId, game.week);
     } else {
         console.log(`Game id ${game.gameId} is already loaded.`);
     }
+}
+
+function registerWeekForTeam(teamId, week) {
+    let teamUnplayedWeeks;
+    if (leagueUnplayedWeeks.has(teamId)) {
+        teamUnplayedWeeks = leagueUnplayedWeeks.get(teamId);
+    } else {
+        teamUnplayedWeeks = getGameSet();
+    }
+
+    teamUnplayedWeeks.delete(week);
+    leagueUnplayedWeeks.set(teamId, teamUnplayedWeeks);
 }
 
 async function loadGame(game, homeTeamId, visitorTeamId, homeScoreId, visitorScoreId) {

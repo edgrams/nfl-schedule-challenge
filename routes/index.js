@@ -1,5 +1,5 @@
-const byes = require("./byes");
+const schedule = require("./schedule");
 
 module.exports = (app) => {
-  app.use("/byes", byes);
+  app.use("/schedule", schedule);
 };
