@@ -1,5 +1,6 @@
-const { CREATE_BYE_TABLE, CREATE_GAME_TABLE, CREATE_SCORE_TABLE, CREATE_TEAM_TABLE, GAME_EXISTS_QUERY, INSERT_GAME_DATA,
-    INSERT_SCORE_DATA, INSERT_TEAM_DATA, TABLE_EXISTS_QUERY, TEAM_ID_QUERY } = require("./sql/schedule-loader");
+const { CREATE_BYE_TABLE, CREATE_GAME_TABLE, CREATE_SCORE_TABLE, CREATE_TEAM_TABLE, GAME_EXISTS_QUERY,
+    INSERT_BYE_DATA, INSERT_GAME_DATA, INSERT_SCORE_DATA, INSERT_TEAM_DATA, TABLE_EXISTS_QUERY,
+    TEAM_ID_QUERY } = require("./sql/schedule-loader");
 const { Client } = require("pg");
 const rp = require('request-promise');
 
@@ -7,6 +8,9 @@ console.log("Schedule loader running.");
 
 const client = new Client();
 const leagueUnplayedWeeks = new Map();
+
+const seasonType = process.env.SEASON_TYPE;
+const seasonYear = process.env.SEASON_YEAR;
 
 openDatabaseConnection().catch(e => console.error(e.stack))
     .then(initializeTables)
@@ -49,9 +53,11 @@ async function loadScheduleData(data) {
         await loadScheduledGame(data[i]);
     }
 
-    leagueUnplayedWeeks.forEach((value, key) => {
-        console.log(`team[${key}] = ${value.values().next().value}`)
-    });
+    for (const [key, value] of leagueUnplayedWeeks.entries()) {
+        const week = value.values().next().value;
+        await loadBye(key, seasonYear, week);
+        console.log(`Loading bye for team[${key}] = ${week}.`)
+    }
 
     console.log("Done loading schedule data.");
 }
@@ -87,6 +93,10 @@ function registerWeekForTeam(teamId, week) {
     leagueUnplayedWeeks.set(teamId, teamUnplayedWeeks);
 }
 
+async function loadBye(teamId, seasonYear, week) {
+    const newByeResponse = await client.query(INSERT_BYE_DATA, [teamId, seasonYear, week]);
+}
+
 async function loadGame(game, homeTeamId, visitorTeamId, homeScoreId, visitorScoreId) {
     const newGameResponse = await client.query(INSERT_GAME_DATA, [game.gameId, game.gameDate, game.gameType,
         game.seasonType, game.week, homeTeamId, visitorTeamId, homeScoreId, visitorScoreId]);
@@ -113,9 +123,6 @@ async function loadTeam(team) {
 }
 
 async function getScheduleData() {
-    const seasonType = process.env.SEASON_TYPE;
-    const seasonYear = process.env.SEASON_YEAR;
-
     const scheduleUrl = `http://api.ngs.nfl.com/league/schedule?season=${seasonYear}&seasonType=${seasonType}`;
 
     const options = {
