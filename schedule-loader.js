@@ -1,11 +1,16 @@
-const { CREATE_GAME_TABLE, CREATE_SCORE_TABLE, CREATE_TEAM_TABLE, GAME_EXISTS_QUERY, INSERT_GAME_DATA,
-    INSERT_SCORE_DATA, INSERT_TEAM_DATA, TABLE_EXISTS_QUERY, TEAM_ID_QUERY } = require("./sql/schedule-loader");
+const { CREATE_BYE_TABLE, CREATE_GAME_TABLE, CREATE_SCORE_TABLE, CREATE_TEAM_TABLE, GAME_EXISTS_QUERY,
+    INSERT_BYE_DATA, INSERT_GAME_DATA, INSERT_SCORE_DATA, INSERT_TEAM_DATA, TABLE_EXISTS_QUERY,
+    TEAM_ID_QUERY } = require("./sql/schedule-loader");
 const { Client } = require("pg");
 const rp = require('request-promise');
 
 console.log("Schedule loader running.");
 
 const client = new Client();
+const leagueUnplayedWeeks = new Map();
+
+const seasonType = process.env.SEASON_TYPE;
+const seasonYear = process.env.SEASON_YEAR;
 
 openDatabaseConnection().catch(e => console.error(e.stack))
     .then(initializeTables)
@@ -16,6 +21,11 @@ openDatabaseConnection().catch(e => console.error(e.stack))
         console.log("Schedule loader completed!");
         process.exit();
     });
+
+function getGameSet() {
+    const weeks = Array(17).fill().map((_, i) => i + 1);
+    return new Set(weeks);
+}
 
 async function openDatabaseConnection() {
     client.connect();
@@ -29,6 +39,7 @@ async function initializeTables() {
     console.log("Initializing tables...");
 
     await createTable('team', CREATE_TEAM_TABLE);
+    await createTable('bye', CREATE_BYE_TABLE);
     await createTable('score', CREATE_SCORE_TABLE);
     await createTable('game', CREATE_GAME_TABLE);
 
@@ -40,6 +51,12 @@ async function loadScheduleData(data) {
 
     for (let i = 0; i < data.length; i++) {
         await loadScheduledGame(data[i]);
+    }
+
+    for (const [key, value] of leagueUnplayedWeeks.entries()) {
+        const week = value.values().next().value;
+        await loadBye(key, seasonYear, week);
+        console.log(`Loading bye for team[${key}] = ${week}.`)
     }
 
     console.log("Done loading schedule data.");
@@ -56,9 +73,28 @@ async function loadScheduledGame(game) {
 
         const gameId = await loadGame(game, homeTeamId, visitorTeamId, homeScoreId, visitorScoreId);
         console.log(`Game id ${gameId} is loaded.`);
+
+        registerWeekForTeam(homeTeamId, game.week);
+        registerWeekForTeam(visitorTeamId, game.week);
     } else {
         console.log(`Game id ${game.gameId} is already loaded.`);
     }
+}
+
+function registerWeekForTeam(teamId, week) {
+    let teamUnplayedWeeks;
+    if (leagueUnplayedWeeks.has(teamId)) {
+        teamUnplayedWeeks = leagueUnplayedWeeks.get(teamId);
+    } else {
+        teamUnplayedWeeks = getGameSet();
+    }
+
+    teamUnplayedWeeks.delete(week);
+    leagueUnplayedWeeks.set(teamId, teamUnplayedWeeks);
+}
+
+async function loadBye(teamId, seasonYear, week) {
+    const newByeResponse = await client.query(INSERT_BYE_DATA, [teamId, seasonYear, week]);
 }
 
 async function loadGame(game, homeTeamId, visitorTeamId, homeScoreId, visitorScoreId) {
@@ -87,9 +123,6 @@ async function loadTeam(team) {
 }
 
 async function getScheduleData() {
-    const seasonType = process.env.SEASON_TYPE;
-    const seasonYear = process.env.SEASON_YEAR;
-
     const scheduleUrl = `http://api.ngs.nfl.com/league/schedule?season=${seasonYear}&seasonType=${seasonType}`;
 
     const options = {

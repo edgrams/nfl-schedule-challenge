@@ -1,4 +1,11 @@
 module.exports = {
+    CREATE_BYE_TABLE: "CREATE TABLE bye (" +
+            "team_id INTEGER NOT NULL REFERENCES team, " +
+            "season_year SMALLINT NOT NULL, " +
+            "week SMALLINT NOT NULL, " +
+            "PRIMARY KEY(team_id, season_year)" +
+        ");",
+
     CREATE_GAME_TABLE: "CREATE TABLE game (" +
             "id INTEGER PRIMARY KEY, " +
             "date DATE NOT NULL, " +
@@ -29,6 +36,9 @@ module.exports = {
 
     GAME_EXISTS_QUERY: "SELECT EXISTS " +
         "(SELECT * FROM game WHERE id = $1)",
+
+    INSERT_BYE_DATA: "INSERT INTO bye (team_id, season_year, week) VALUES " +
+        "($1, $2, $3) RETURNING *;",
 
     INSERT_GAME_DATA: "INSERT INTO game (id, date, type, season_type, week, home_team_id, visitor_team_id, " +
         "home_score_id, visitor_score_id) VALUES ($1, $2, $3, $4, $5, $6, $7, $8, $9) RETURNING *;",
