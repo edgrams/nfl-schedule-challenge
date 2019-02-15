@@ -53,10 +53,12 @@ async function loadScheduleData(data) {
         await loadScheduledGame(data[i]);
     }
 
-    for (const [key, value] of leagueUnplayedWeeks.entries()) {
-        const week = value.values().next().value;
-        await loadBye(key, seasonYear, week);
-        console.log(`Loading bye for team[${key}] = ${week}.`)
+    if (seasonType === "REG") {
+        for (const [key, value] of leagueUnplayedWeeks.entries()) {
+            const week = value.values().next().value;
+            await loadBye(key, seasonYear, week);
+            console.log(`Loading bye for team[${key}] = ${week}.`)
+        }
     }
 
     console.log("Done loading schedule data.");
@@ -69,7 +71,7 @@ async function loadScheduledGame(game) {
         const visitorTeamId = await loadTeam(game.visitorTeam);
 
         const gameId = await loadGame(game, homeTeamId, visitorTeamId);
-        
+
         await loadScore(gameId, homeTeamId, game.score.homeTeamScore);
         await loadScore(gameId, visitorTeamId, game.score.visitorTeamScore);
 
