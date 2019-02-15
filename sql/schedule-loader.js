@@ -13,19 +13,19 @@ module.exports = {
             "season_type CHAR(4) NOT NULL, " +
             "week SMALLINT NOT NULL, " +
             "home_team_id INTEGER NOT NULL REFERENCES team, " +
-            "visitor_team_id INTEGER NOT NULL REFERENCES team, " +
-            "home_score_id INTEGER NOT NULL REFERENCES score, " +
-            "visitor_score_id INTEGER NOT NULL REFERENCES score" +
+            "visitor_team_id INTEGER NOT NULL REFERENCES team" +
         ");",
 
     CREATE_SCORE_TABLE: "CREATE TABLE score (" +
-            "id SERIAL PRIMARY KEY, " +
+            "game_id INTEGER NOT NULL REFERENCES game, " +
+            "team_id INTEGER NOT NULL REFERENCES team, " +
             "quarter_one SMALLINT NOT NULL, " +
             "quarter_two SMALLINT NOT NULL, " +
             "quarter_three SMALLINT NOT NULL, " +
             "quarter_four SMALLINT NOT NULL, " +
             "quarter_overtime SMALLINT, " +
-            "total SMALLINT NOT NULL" +
+            "total SMALLINT NOT NULL, " +
+            "PRIMARY KEY(game_id, team_id)" +
         ");",
 
     CREATE_TEAM_TABLE: "CREATE TABLE team (" +
@@ -40,11 +40,11 @@ module.exports = {
     INSERT_BYE_DATA: "INSERT INTO bye (team_id, season_year, week) VALUES " +
         "($1, $2, $3) RETURNING *;",
 
-    INSERT_GAME_DATA: "INSERT INTO game (id, date, type, season_type, week, home_team_id, visitor_team_id, " +
-        "home_score_id, visitor_score_id) VALUES ($1, $2, $3, $4, $5, $6, $7, $8, $9) RETURNING *;",
+    INSERT_GAME_DATA: "INSERT INTO game (id, date, type, season_type, week, home_team_id, visitor_team_id) " +
+        "VALUES ($1, $2, $3, $4, $5, $6, $7) RETURNING *;",
 
-    INSERT_SCORE_DATA: "INSERT INTO score (total, quarter_one, quarter_two, quarter_three, " +
-        "quarter_four, quarter_overtime) VALUES ($1, $2, $3, $4, $5, $6) RETURNING *;",
+    INSERT_SCORE_DATA: "INSERT INTO score (game_id, team_id, quarter_one, quarter_two, quarter_three, " +
+        "quarter_four, quarter_overtime, total) VALUES ($1, $2, $3, $4, $5, $6, $7, $8) RETURNING *;",
 
     INSERT_TEAM_DATA: "INSERT INTO team (abbreviation, name) VALUES ($1, $2) RETURNING *;",
 
