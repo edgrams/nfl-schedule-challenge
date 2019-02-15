@@ -12,7 +12,7 @@ const leagueUnplayedWeeks = new Map();
 const seasonType = process.env.SEASON_TYPE;
 const seasonYear = process.env.SEASON_YEAR;
 
-openDatabaseConnection().catch(e => console.error(e.stack))
+openDatabaseConnection()
     .then(initializeTables)
     .then(getScheduleData)
     .then(loadScheduleData)
@@ -40,8 +40,8 @@ async function initializeTables() {
 
     await createTable('team', CREATE_TEAM_TABLE);
     await createTable('bye', CREATE_BYE_TABLE);
-    await createTable('score', CREATE_SCORE_TABLE);
     await createTable('game', CREATE_GAME_TABLE);
+    await createTable('score', CREATE_SCORE_TABLE);
 
     console.log("Tables initialized.");
 }
@@ -68,10 +68,11 @@ async function loadScheduledGame(game) {
         const homeTeamId = await loadTeam(game.homeTeam);
         const visitorTeamId = await loadTeam(game.visitorTeam);
 
-        const homeScoreId = await loadScore(game.score.homeTeamScore);
-        const visitorScoreId = await loadScore(game.score.visitorTeamScore);
+        const gameId = await loadGame(game, homeTeamId, visitorTeamId);
 
-        const gameId = await loadGame(game, homeTeamId, visitorTeamId, homeScoreId, visitorScoreId);
+        await loadScore(gameId, homeTeamId, game.score.homeTeamScore);
+        await loadScore(gameId, visitorTeamId, game.score.visitorTeamScore);
+
         console.log(`Game id ${gameId} is loaded.`);
 
         registerWeekForTeam(homeTeamId, game.week);
@@ -97,15 +98,15 @@ async function loadBye(teamId, seasonYear, week) {
     const newByeResponse = await client.query(INSERT_BYE_DATA, [teamId, seasonYear, week]);
 }
 
-async function loadGame(game, homeTeamId, visitorTeamId, homeScoreId, visitorScoreId) {
+async function loadGame(game, homeTeamId, visitorTeamId) {
     const newGameResponse = await client.query(INSERT_GAME_DATA, [game.gameId, game.gameDate, game.gameType,
-        game.seasonType, game.week, homeTeamId, visitorTeamId, homeScoreId, visitorScoreId]);
+        game.seasonType, game.week, homeTeamId, visitorTeamId]);
     return newGameResponse.rows[0].id;
 }
 
-async function loadScore(score) {
-    const newScoreResponse = await client.query(INSERT_SCORE_DATA, [score.pointTotal, score.pointQ1, score.pointQ2,
-        score.pointQ3, score.pointQ4, score.pointOT]);
+async function loadScore(gameId, teamId, score) {
+    const newScoreResponse = await client.query(INSERT_SCORE_DATA, [gameId, teamId, score.pointQ1, score.pointQ2,
+        score.pointQ3, score.pointQ4, score.pointOT, score.pointTotal]);
     return newScoreResponse.rows[0].id;
 }
 
