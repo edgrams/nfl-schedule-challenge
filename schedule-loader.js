@@ -2,7 +2,7 @@ const { CREATE_BYE_TABLE, CREATE_GAME_TABLE, CREATE_SCORE_TABLE, CREATE_TEAM_TAB
     INSERT_BYE_DATA, INSERT_GAME_DATA, INSERT_SCORE_DATA, INSERT_TEAM_DATA, TABLE_EXISTS_QUERY,
     TEAM_ID_QUERY } = require("./sql/schedule-loader");
 const { Client } = require("pg");
-const rp = require('request-promise');
+const RequestPromise = require("request-promise");
 
 console.log("Schedule loader running.");
 
@@ -20,7 +20,8 @@ openDatabaseConnection()
     .then(() => {
         console.log("Schedule loader completed!");
         process.exit();
-    });
+    })
+    .catch(e => console.error(e.stack));
 
 function getGameSet() {
     const weeks = Array(17).fill().map((_, i) => i + 1);
@@ -38,10 +39,10 @@ async function closeDatabaseConnection() {
 async function initializeTables() {
     console.log("Initializing tables...");
 
-    await createTable('team', CREATE_TEAM_TABLE);
-    await createTable('bye', CREATE_BYE_TABLE);
-    await createTable('game', CREATE_GAME_TABLE);
-    await createTable('score', CREATE_SCORE_TABLE);
+    await createTable("team", CREATE_TEAM_TABLE);
+    await createTable("bye", CREATE_BYE_TABLE);
+    await createTable("game", CREATE_GAME_TABLE);
+    await createTable("score", CREATE_SCORE_TABLE);
 
     console.log("Tables initialized.");
 }
@@ -57,7 +58,7 @@ async function loadScheduleData(data) {
         for (const [key, value] of leagueUnplayedWeeks.entries()) {
             const week = value.values().next().value;
             await loadBye(key, seasonYear, week);
-            console.log(`Loading bye for team[${key}] = ${week}.`)
+            console.log(`Loading bye for team[${key}] = ${week}.`);
         }
     }
 
@@ -97,7 +98,7 @@ function registerWeekForTeam(teamId, week) {
 }
 
 async function loadBye(teamId, seasonYear, week) {
-    const newByeResponse = await client.query(INSERT_BYE_DATA, [teamId, seasonYear, week]);
+    await client.query(INSERT_BYE_DATA, [teamId, seasonYear, week]);
 }
 
 async function loadGame(game, homeTeamId, visitorTeamId) {
@@ -133,7 +134,7 @@ async function getScheduleData() {
         json: true
     };
 
-    return rp(options);
+    return RequestPromise(options);
 }
 
 async function createTable(table, sql) {
