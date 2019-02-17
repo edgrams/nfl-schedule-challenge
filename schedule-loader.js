@@ -20,8 +20,7 @@ openDatabaseConnection()
     .then(() => {
         console.log("Schedule loader completed!");
         process.exit();
-    })
-    .catch(e => console.error(e.stack));
+    });
 
 function getGameSet() {
     const weeks = Array(17).fill().map((_, i) => i + 1);
@@ -50,15 +49,17 @@ async function initializeTables() {
 async function loadScheduleData(data) {
     console.log("Loading schedule data ...");
 
-    for (let i = 0; i < data.length; i++) {
-        await loadScheduledGame(data[i]);
-    }
+    if (seasonYear !== "2013") {
+        for (let i = 0; i < data.length; i++) {
+            await loadScheduledGame(data[i]);
+        }
 
-    if (seasonType === "REG") {
-        for (const [key, value] of leagueUnplayedWeeks.entries()) {
-            const week = value.values().next().value;
-            await loadBye(key, seasonYear, week);
-            console.log(`Loading bye for team[${key}] = ${week}.`);
+        if (seasonType === "REG") {
+            for (const [key, value] of leagueUnplayedWeeks.entries()) {
+                const week = value.values().next().value;
+                await loadBye(key, seasonYear, week);
+                console.log(`Loading bye for team[${key}] = ${week}.`);
+            }
         }
     }
 
@@ -68,8 +69,8 @@ async function loadScheduleData(data) {
 async function loadScheduledGame(game) {
     const gameIdResponse = await client.query(GAME_EXISTS_QUERY, [game.gameId]);
     if (!gameIdResponse.rows[0].exists) {
-        const homeTeamId = await loadTeam(game.homeTeam);
-        const visitorTeamId = await loadTeam(game.visitorTeam);
+        const homeTeamId = await loadTeam(game.homeTeamAbbr, game.homeTeam.fullName);
+        const visitorTeamId = await loadTeam(game.visitorTeamAbbr, game.visitorTeam.fullName);
 
         const gameId = await loadGame(game, homeTeamId, visitorTeamId);
 
@@ -113,11 +114,11 @@ async function loadScore(gameId, teamId, score) {
     return newScoreResponse.rows[0].id;
 }
 
-async function loadTeam(team) {
+async function loadTeam(abbreviation, fullName) {
     let teamId;
-    const teamResponse = await client.query(TEAM_ID_QUERY, [team.abbr]);
+    const teamResponse = await client.query(TEAM_ID_QUERY, [abbreviation]);
     if (teamResponse.rowCount === 0) {
-        const newTeamResponse = await client.query(INSERT_TEAM_DATA, [team.abbr, team.fullName]);
+        const newTeamResponse = await client.query(INSERT_TEAM_DATA, [abbreviation, fullName]);
         teamId = newTeamResponse.rows[0].id;
     } else {
         teamId = teamResponse.rows[0].id;

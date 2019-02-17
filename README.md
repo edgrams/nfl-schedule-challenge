@@ -1,6 +1,6 @@
 # nfl-schedule-challenge
 
-### Note: This will only load data from 2015 and beyond due to availability of team abbreviations 
+### Note: This will only load data from 2014 and beyond due to availability of tracked scoring. 
 
 ## Prerequisites:
 - nvm installed
