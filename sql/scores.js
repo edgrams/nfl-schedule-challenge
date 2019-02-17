@@ -5,6 +5,7 @@ module.exports = {
         "INNER JOIN game ON score.game_id = game.id " +
         "INNER JOIN bye ON team.id = bye.team_id " +
         "WHERE team.abbreviation = $1 " +
+        "AND game.type = 'REG' " +
         "AND game.week > bye.week " +
         "AND bye.season_year = $2 " +
         "GROUP BY team.abbreviation;",
@@ -15,6 +16,7 @@ module.exports = {
         "INNER JOIN game ON score.game_id = game.id " +
         "INNER JOIN bye ON team.id = bye.team_id " +
         "WHERE team.abbreviation = $1 " +
+        "AND game.type = 'REG' " +
         "AND game.week > bye.week " +
         "AND bye.season_year = $2 " +
         "GROUP BY team.abbreviation;",
@@ -25,6 +27,7 @@ module.exports = {
         "INNER JOIN game ON score.game_id = game.id " +
         "INNER JOIN bye ON team.id = bye.team_id " +
         "WHERE team.abbreviation = $1 " +
+        "AND game.type = 'REG' " +
         "AND game.week > bye.week " +
         "AND bye.season_year = $2 " +
         "GROUP BY team.abbreviation;",
@@ -35,6 +38,7 @@ module.exports = {
         "INNER JOIN game ON score.game_id = game.id " +
         "INNER JOIN bye ON team.id = bye.team_id " +
         "WHERE team.abbreviation = $1 " +
+        "AND game.type = 'REG' " +
         "AND game.week > bye.week " +
         "AND bye.season_year = $2 " +
         "GROUP BY team.abbreviation;",
@@ -45,6 +49,7 @@ module.exports = {
         "INNER JOIN game ON score.game_id = game.id " +
         "INNER JOIN bye ON team.id = bye.team_id " +
         "WHERE team.abbreviation = $1 " +
+        "AND game.type = 'REG' " +
         "AND game.week > bye.week " +
         "AND bye.season_year = $2 " +
         "GROUP BY team.abbreviation;"
