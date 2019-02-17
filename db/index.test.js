@@ -1,12 +1,17 @@
+jest.mock("pg");
 
-const { test } = require("./index");
+const { Pool } = require("pg");
+const Database = require("./index");
 
 describe("index", () => {
-    describe("test", () => {
-        it("should return a plus b", () => {
-            const result = test(1, 2);
+    describe("query", () => {
+        const sql = "sql";
+        const params = ["param"];
 
-            expect(result).toEqual(3);
+        it("should create instance from pool", () => {
+            Database.query(sql, params);
+
+            expect(Pool).toHaveBeenCalledTimes(1);
         });
     });
 });

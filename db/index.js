@@ -1,15 +1,26 @@
 const { Pool } = require("pg");
 
-const pool = new Pool();
+let pool;
 
 module.exports = {
-    query: (sql, params, res, next) => pool.query(sql, params)
-        .then((result) => {
-            res.send(result.rows);
-        })
-        .catch((err) => {
-            return next(err);
-        }),
+    query: (sql, params, res, next) => {
+        const pool = getPool();
+        pool.query(sql, params)
+    }
 
-    test: (a, b) => (a + b)
+
+            /*    .then((result) => {
+                    res.send(result.rows);
+                })
+                .catch((err) => {
+                    return next(err);
+                }),*/
 };
+
+function getPool() {
+    if (!pool) {
+        pool = new Pool();
+    }
+
+    return pool;
+}
