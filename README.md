@@ -7,9 +7,9 @@
 - postgres installed
 
 ## Installation:
-- nvm install 11.9.0
-- nvm use
-- yarn install --production
+1) ```nvm install 11.9.0```
+2) ```nvm use```
+3) ```yarn install --production```
 
 ## Setup
 Before making the API accessible, you will want to load a schedule first:
