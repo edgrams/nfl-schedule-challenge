@@ -9,5 +9,7 @@ module.exports = {
         })
         .catch((err) => {
             return next(err);
-        })
+        }),
+
+    test: (a, b) => (a + b)
 };
