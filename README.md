@@ -35,10 +35,10 @@ After loading season data, start up the API:
 *Example*: ```curl "localhost:3000/schedule/byes/2018/team/MIN"```
 
 ### game score average endpoint
-**Route**: average score for team: ```http://localhost:3000/game/scores/{sesaon}/team/{team}```
+**Route**: average score for team: ```http://localhost:3000/game/scores/{season}/team/{team-abbr}```
 
 *Example*: ```curl "localhost:3000/game/scores/2018/team/MIN"```
 
-**Route**: average score for team per quarter: ```http://localhost:3000/game/scores/{season}/team/{team}/quarter/{quarter}```
+**Route**: average score for team per quarter: ```http://localhost:3000/game/scores/{season}/team/{team-abbr}/quarter/{quarter}```
 
 *Example*: ```curl "localhost:3000/game/scores/2018/team/MIN/quarter/4"```
