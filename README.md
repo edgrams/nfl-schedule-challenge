@@ -1,6 +1,6 @@
 # nfl-schedule-challenge
 
-###Note: This will only load data from 2015 and beyond due to availability of team abbreviations 
+##Note: This will only load data from 2015 and beyond due to availability of team abbreviations 
 
 ## Prerequisites:
 - nvm installed
@@ -16,13 +16,13 @@ Before making the API accessible, you will want to load a schedule first:
 
 ```./schedule-loader.sh <postgres user> <postgres host> <postgres password> <postgres database> <postgres port> <season type> <season year>```
 
-Example: ```./schedule-loader.sh postgres localhost admin postgres 5432 REG 2018```
+*Example*: ```./schedule-loader.sh postgres localhost admin postgres 5432 REG 2018```
 
 After loading season data, start up the API:
 
 ```./start.sh <postgres user> <postgres host> <postgres password> <postgres database> <postgres port>```
 
-Example: ```./start.sh postgres localhost admin postgres 5432```
+*Example*: ```./start.sh postgres localhost admin postgres 5432```
 
 ## Query API
 ### schedule bye endpoint
