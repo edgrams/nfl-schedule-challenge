@@ -1,33 +1,20 @@
-const { QUERY_BYE_BY_TEAM_BY_YEAR, QUERY_BYE_BY_YEAR } = require("../sql/schedule");
+const { QUERY_BYE_BY_TEAM_BY_YEAR: QUERY_BYE_BY_YEAR_BY_TEAM, QUERY_BYE_BY_YEAR } = require("../sql/schedule");
 const Router = require("express-promise-router");
-const { Pool } = require("pg");
+const Database = require('../db');
 
 const router = new Router();
-const pool = new Pool();
 
 router.get("/byes/:season", (req, res, next) => {
     const season = req.params.season;
 
-    pool.query(QUERY_BYE_BY_YEAR, [season])
-        .then((result) => {
-            res.send(result.rows);
-        })
-        .catch((err) => {
-            return next(err);
-        });
+    Database.query(QUERY_BYE_BY_YEAR, [season], res, next);
 });
 
 router.get("/byes/:season/team/:team", (req, res, next) => {
     const season = req.params.season;
     const team = req.params.team;
 
-    pool.query(QUERY_BYE_BY_TEAM_BY_YEAR, [team, season])
-        .then((result) => {
-            res.send(result.rows);
-        })
-        .catch((err) => {
-            return next(err);
-        });
+    Database.query(QUERY_BYE_BY_YEAR_BY_TEAM, [team, season], res, next);
 });
 
 module.exports = router;
