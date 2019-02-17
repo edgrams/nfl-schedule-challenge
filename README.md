@@ -18,6 +18,12 @@ Before making the API accessible, you will want to load a schedule first:
 
 *Example*: ```./schedule-loader.sh postgres localhost admin postgres 5432 REG 2018```
 
+There is a script to load all season data, to do so run:
+
+```./load-all-seasons.sh <postgres user> <postgres host> <postgres password> <postgres database> <postgres port>```
+
+*Example*: ```./load-all-seasons.sh postgres localhost admin postgres 5432```
+
 After loading season data, start up the API:
 
 ```./start.sh <postgres user> <postgres host> <postgres password> <postgres database> <postgres port>```
