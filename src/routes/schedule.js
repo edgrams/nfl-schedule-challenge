@@ -1,4 +1,4 @@
-const { QUERY_BYE_BY_TEAM_BY_YEAR: QUERY_BYE_BY_YEAR_BY_TEAM, QUERY_BYE_BY_YEAR } = require("../sql/schedule");
+const { QUERY_BYE_BY_YEAR, QUERY_BYE_BY_YEAR_BY_TEAM } = require("../sql/schedule");
 const Router = require("express-promise-router");
 const Database = require("../db/index");
 
