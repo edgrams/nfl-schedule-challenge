@@ -16,15 +16,15 @@ describe("index", () => {
         const sql = "sql";
         const params = ["param"];
 
-        const mockPool = new Pool();
-        Database.getPool = jest.fn(() => {
-            return mockPool;
-        });
         const mockResponse = {
             send: jest.fn()
         };
 
         it("should request getPool", () => {
+            const mockPool = new Pool();
+            Database.getPool = jest.fn(() => {
+                return mockPool;
+            });
             mockPool.query
                 .mockReturnValueOnce(new Promise((resolve) => {
                     resolve({});
@@ -36,6 +36,10 @@ describe("index", () => {
         });
 
         it("should request query from pool", () => {
+            const mockPool = new Pool();
+            Database.getPool = jest.fn(() => {
+                return mockPool;
+            });
             mockPool.query
                 .mockReturnValueOnce(new Promise((resolve) => {
                     resolve({});
@@ -51,6 +55,10 @@ describe("index", () => {
             const result = {
                 rows: rows
             };
+            const mockPool = new Pool();
+            Database.getPool = jest.fn(() => {
+                return mockPool;
+            });
             mockPool.query
                 .mockReturnValueOnce(new Promise((resolve) => {
                     resolve(result);
@@ -64,6 +72,10 @@ describe("index", () => {
         it("should request next with error when rejected", async() => {
             const result = new Error("error");
             const mockNext = jest.fn();
+            const mockPool = new Pool();
+            Database.getPool = jest.fn(() => {
+                return mockPool;
+            });
             mockPool.query
                 .mockReturnValueOnce(new Promise((resolve, reject) => {
                     reject(result);
