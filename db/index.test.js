@@ -1,17 +1,26 @@
 jest.mock("pg");
 
-const { Pool } = require("pg");
 const Database = require("./index");
+const { Pool } = require("pg");
 
 describe("index", () => {
     describe("query", () => {
         const sql = "sql";
         const params = ["param"];
 
-        it("should create instance from pool", () => {
+        it("should request query from pool", () => {
+            const mockPool = new Pool();
+            mockPool.query
+                .mockReturnValueOnce(new Promise((resolve) => {
+                    resolve({});
+                }));
+            Database.getPool = jest.fn(() => {
+                return mockPool;
+            });
+
             Database.query(sql, params);
 
-            expect(Pool).toHaveBeenCalledTimes(1);
+            expect(mockPool.query).toHaveBeenCalledTimes(1);
         });
     });
 });
