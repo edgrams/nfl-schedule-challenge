@@ -3,9 +3,7 @@ const { Pool } = require("pg");
 const pool = new Pool();
 
 module.exports = {
-    getPool: () => {
-        return pool;
-    },
+    getPool: pool,
 
     query: async (sql, params, res, next) => {
         await module.exports.getPool().query(sql, params)

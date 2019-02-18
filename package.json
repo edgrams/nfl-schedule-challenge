@@ -8,7 +8,7 @@
   "scripts": {
     "start": "node app.js",
     "lint": "eslint db/*.js routes/*.js sql/*.js *.js",
-    "test": "jest"
+    "test": "jest --collectCoverage"
   },
   "dependencies": {
     "express": "^4.16.4",
