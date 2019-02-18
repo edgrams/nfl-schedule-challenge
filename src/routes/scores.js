@@ -2,7 +2,7 @@ const { QUERY_SCORE_AVG_BY_TEAM_BY_YEAR_BY_QUARTER_ONE: QUERY_SCORE_AVG_BY_YEAR_
     QUERY_SCORE_AVG_BY_TEAM_BY_YEAR_BY_QUARTER_THREE: QUERY_SCORE_AVG_BY_YEAR_BY_TEAM_BY_QUARTER_THREE, QUERY_SCORE_AVG_BY_TEAM_BY_YEAR_BY_QUARTER_FOUR: QUERY_SCORE_AVG_BY_YEAR_BY_TEAM_BY_QUARTER_FOUR,
     QUERY_SCORE_AVG_BY_TEAM_BY_YEAR: QUERY_SCORE_AVG_BY_YEAR_BY_TEAM } = require("../sql/scores");
 const Router = require("express-promise-router");
-const Database = require("../db");
+const Database = require("../db/index");
 
 const router = new Router();
 
