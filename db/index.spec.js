@@ -5,7 +5,7 @@ const { Pool } = require("pg");
 
 describe("index", () => {
     describe("getPool", () => {
-        it ("should return pool", () => {
+        it("should return pool", () => {
             const result = Database.getPool();
 
             expect(result).toBeInstanceOf(Pool);
@@ -46,7 +46,7 @@ describe("index", () => {
             expect(mockPool.query).toHaveBeenCalledWith(sql, params);
         });
 
-        it("should request send from response with result when resolved", async () => {
+        it("should request send from response with result when resolved", async() => {
             const rows = [];
             const result = {
                 rows: rows
@@ -61,7 +61,7 @@ describe("index", () => {
             expect(mockResponse.send).toHaveBeenCalledWith(rows);
         });
 
-        it("should request next with error when rejected", async () => {
+        it("should request next with error when rejected", async() => {
             const result = new Error("error");
             const mockNext = jest.fn();
             mockPool.query
