@@ -1,5 +1,5 @@
 const Express = require("express");
-const MountRoutes = require("./routes");
+const MountRoutes = require("./routes/index");
 
 const app = Express();
 MountRoutes(app);

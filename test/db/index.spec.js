@@ -1,6 +1,6 @@
 jest.mock("pg");
 
-const Database = require("./index");
+const Database = require("../../src/db/index");
 const { Pool } = require("pg");
 
 describe("index", () => {
